@@ -14,13 +14,17 @@ export const appRouter = createTRPCRouter({
   }),
 
   createWorkflow: protectedProcedure.mutation(async () => {
-    
     inngest.send({
-      name:"test/hello.world",
-      data:{
-        email:"mjogoh@gmail.com"
-      }
-    })
+      name: "test/hello.world",
+      data: {
+        email: "mjogoh@gmail.com",
+      },
+    });
+  }),
+  testAi: protectedProcedure.mutation(async () => {
+    inngest.send({
+      name: "execute/ai",
+    });
   }),
 });
 // export type definition of API
