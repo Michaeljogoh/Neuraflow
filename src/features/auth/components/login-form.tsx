@@ -22,9 +22,9 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { cn } from "@/lib/utils";
 import { Input } from "@/components/ui/input";
 import { authClient } from "@/lib/auth-client";
+import Image from "next/image";
 
 const loginSchema = z.object({
   email: z.email("Please enter a valid email address"),
@@ -82,6 +82,7 @@ export function LoginForm() {
                     type="button"
                     disabled={isPending}
                   >
+                    <Image src='/logos/github.svg' width={20} height={20} alt="Github Logo"/>
                     Continue With Github
                   </Button>
 
@@ -91,6 +92,7 @@ export function LoginForm() {
                     type="button"
                     disabled={isPending}
                   >
+                    <Image src='/logos/google.svg' width={20} height={20} alt="Google Logo"/>
                     Continue With Google
                   </Button>
                 </div>
