@@ -26,6 +26,7 @@ import {
 import { authClient } from "@/lib/auth-client";
 import { Input } from "@/components/ui/input";
 
+
 const registerSchema = z
   .object({
     email: z.email("Please enter a valid email address"),
@@ -91,6 +92,7 @@ export function RegisterForm() {
                     type="button"
                     disabled={isPending}
                   >
+                    <Image src='/logos/github.svg' width={20} height={20} alt="Github Logo"/>
                     Continue With Github
                   </Button>
 
@@ -100,6 +102,7 @@ export function RegisterForm() {
                     type="button"
                     disabled={isPending}
                   >
+                    <Image src='/logos/google.svg' width={20} height={20} alt="Google Logo"/>
                     Continue With Google
                   </Button>
                 </div>
