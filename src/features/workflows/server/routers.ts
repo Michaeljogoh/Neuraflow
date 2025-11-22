@@ -20,7 +20,7 @@ export const workflowsRouter = createTRPCRouter({
   remove: protectedProcedure
     .input(z.object({ id: z.string() }))
     .mutation(({ ctx, input }) => {
-      prisma.workflow.delete({
+     return  prisma.workflow.delete({
         where: {
           id: input.id,
           userId: ctx.auth.user.id,

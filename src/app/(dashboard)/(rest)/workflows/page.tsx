@@ -6,6 +6,7 @@ import { ErrorBoundary } from "react-error-boundary"
 import { WorkflowsList, WorkflowContainer } from "@/features/workflows/components/workflows";
 import { SearchParams } from "nuqs";
 import { WorkflowParamsLoader } from "@/features/workflows/server/params-loader";
+import { WorkflowLoading } from "@/features/workflows/components/workflows";
 
 type Props = {
   searchParams: Promise<SearchParams>
@@ -23,7 +24,7 @@ export default async function Page({ searchParams }: Props) {
     <WorkflowContainer>
     <HydrateClient>
       <ErrorBoundary fallback={<p>Error!</p>}>
-         <Suspense fallback={<p>Loading...</p>} >
+         <Suspense fallback={<WorkflowLoading />}>
                <WorkflowsList />
          </Suspense>
       </ErrorBoundary>
