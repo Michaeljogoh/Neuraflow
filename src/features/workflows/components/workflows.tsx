@@ -1,10 +1,32 @@
 "use client";
 
-import { EntityHeader } from "@/components/entity-view/entity-view";
+import {
+  EntityHeader,
+  EntitySearch,
+  EntityContainer,
+  EntityPagination,
+} from "@/components/entity-components/entity-components";
 import { useCreateWorkflow, useSuspenseWorkflows } from "../hooks/use-workflow";
-import { EntityContainer } from "@/components/entity-view/entity-view";
 import { useUpgradeModal } from "@/hooks/use-upgrade-modal";
 import { useRouter } from "next/navigation";
+import { useWorkflowParams } from "../hooks/use-workflow-params";
+import { useEntitySearch } from "../hooks/use-entity-search";
+
+export const WorkflowSearch = () => {
+  const [params, setParams] = useWorkflowParams();
+  const { searchValue, onSearchChange } = useEntitySearch({
+    params,
+    setParams,
+  });
+
+  return (
+    <EntitySearch
+      value={searchValue}
+      onChange={onSearchChange}
+      placeholder="Search Workflows"
+    />
+  );
+};
 
 export const WorkflowsList = () => {
   const workflows = useSuspenseWorkflows();
@@ -19,7 +41,7 @@ export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
   const handleCreate = () => {
     createworkflow.mutate(undefined, {
       onSuccess: (data) => {
-        router.push(`/workflows/${data.id}`)
+        router.push(`/workflows/${data.id}`);
       },
       onError: (error) => {
         handleError(error);
@@ -41,6 +63,21 @@ export const WorkflowsHeader = ({ disabled }: { disabled?: boolean }) => {
   );
 };
 
+export const WorkflowsPagination = () =>{
+  const workflows = useSuspenseWorkflows();
+  const [params, setParams] = useWorkflowParams();
+
+  return (
+    <EntityPagination 
+    disabled = {workflows.isFetching}
+    totalPages = {workflows.data.totalPages}
+    page = {workflows.data.page }
+    onPageChange={(page) => setParams({ ...params, page })}
+    
+    />
+  )
+}
+
 export const WorkflowContainer = ({
   children,
 }: {
@@ -49,8 +86,8 @@ export const WorkflowContainer = ({
   return (
     <EntityContainer
       header={<WorkflowsHeader />}
-      search={<></>}
-      pagination={<></>}
+      search={<WorkflowSearch />}
+      pagination={<WorkflowsPagination /> }
     >
       {children}
     </EntityContainer>
