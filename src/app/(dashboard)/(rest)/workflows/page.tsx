@@ -1,5 +1,5 @@
 import { requireAuth } from "@/lib/auth-utils";
-import { prefetchWorkflow } from "@/features/workflows/server/prefetch";
+import { prefetchWorkflows } from "@/features/workflows/server/prefetch";
 import { HydrateClient } from "@/trpc/server";
 import { Suspense } from "react";
 import { ErrorBoundary } from "react-error-boundary"
@@ -18,7 +18,7 @@ export default async function Page({ searchParams }: Props) {
   const params = await WorkflowParamsLoader(searchParams)
 
 
-  prefetchWorkflow(params)
+  prefetchWorkflows(params)
 
   return (
     <WorkflowContainer>
