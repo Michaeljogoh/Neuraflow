@@ -15,7 +15,6 @@ import {
 } from "../ui/sheet";
 import { NodeType } from "@/generated/prisma/enums";
 import { Separator } from "../ui/separator";
-import { Icon } from "lucide-react";
 
 export type NodeTypeOption = {
   type: NodeType;
@@ -113,7 +112,7 @@ export function NodeSelector({
         </SheetHeader>
         <div>
         {triggerNodes.map((nodeType) => {
-          const icon = nodeType.icon;
+          const Icon = nodeType.icon;
           return (
             <div
               key={nodeType.type}
@@ -124,8 +123,9 @@ export function NodeSelector({
                 {typeof Icon === "string" ? (
                   <img src={Icon} alt={nodeType.label} className="size-5 object-contain rounded-sm" />
                 ) : (
-                  <Icon iconNode={[]} className="size-5" />
+                  <Icon className="size-5" />
                 )}
+
                 <div className="flex flex-col items-start text-left">
                   <span className="font-medium text-sm">
                     {nodeType.label}
@@ -143,7 +143,7 @@ export function NodeSelector({
         <Separator  />
         <div>
         {executionNodes.map((nodeType) => {
-          const icon = nodeType.icon;
+          const Icon = nodeType.icon;
           return (
             <div
               key={nodeType.type}
@@ -154,7 +154,7 @@ export function NodeSelector({
                 {typeof Icon === "string" ? (
                   <img src={Icon} alt={nodeType.label} className="size-5 object-contain rounded-sm" />
                 ) : (
-                  <Icon iconNode={[]} className="size-5" />
+                  <Icon className="size-5" />
                 )}
                 <div className="flex flex-col items-start text-left">
                   <span className="font-medium text-sm">
