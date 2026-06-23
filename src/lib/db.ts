@@ -25,9 +25,18 @@ if (process.env.NODE_ENV !== 'production') {
 
 const adapter = new PrismaPg(pool);
 
-const prisma = globalForPrisma.prisma ?? new PrismaClient({ adapter });
+function createPrismaClient() {
+  return new PrismaClient({ adapter });
+}
 
-if (process.env.NODE_ENV !== 'production') {
+let prisma = globalForPrisma.prisma ?? createPrismaClient();
+
+// Dev hot reload can keep a PrismaClient from before schema changes.
+if (!("credential" in prisma)) {
+  prisma = createPrismaClient();
+}
+
+if (process.env.NODE_ENV !== "production") {
   globalForPrisma.prisma = prisma;
 }
 
