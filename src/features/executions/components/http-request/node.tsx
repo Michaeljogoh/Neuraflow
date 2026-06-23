@@ -3,11 +3,14 @@
 import { useReactFlow, type Node, type NodeProps } from "@xyflow/react";
 import { GlobeIcon } from "lucide-react";
 import { memo, useState } from "react";
+import { useNodeStatus } from "@/features/executions/hooks/use-node-status";
+import { HTTP_REQUEST_CHANNEL_NAME } from "@/inngest/channels/http-request";
 import { BaseExecutionNode } from "../base-execution-node/base-execution-node";
 import {
   HttpRequestDialog,
   type HttpRequestFormValues,
 } from "../base-execution-node/dialog";
+import { fetchHttpRequestRealtimeToken } from "./actions";
 
 type HttpRequestNodeData = {
   variableName?: string;
@@ -23,7 +26,13 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
   const [dialogOpen, setDialogOpen] = useState(false);
   const { setNodes } = useReactFlow();
 
-  const nodeStatus = "loading";
+  const nodeStatus = useNodeStatus({
+    nodeId: props.id,
+    channel: HTTP_REQUEST_CHANNEL_NAME,
+    topic: "status",
+    refreshToken: fetchHttpRequestRealtimeToken,
+  });
+
   const handleOpenSettings = () => setDialogOpen(true);
   const handleSubmit = (values: HttpRequestFormValues) => {
     setNodes((nodes) =>
@@ -33,10 +42,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
             ...node,
             data: {
               ...node.data,
-              variableName: values.variableName,
-              endpoint: values.endpoint,
-              method: values.method,
-              body: values.body,
+              ...values,
             },
           };
         }
@@ -47,7 +53,7 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
 
   const nodeData = props.data;
   const description = nodeData?.endpoint
-    ? `${nodeData.method || "GET"} : ${nodeData.endpoint}`
+    ? `${nodeData.method || "GET"}: ${nodeData.endpoint}`
     : "Not configured";
 
   return (
@@ -76,3 +82,5 @@ export const HttpRequestNode = memo((props: NodeProps<HttpRequestNodeType>) => {
     </>
   );
 });
+
+HttpRequestNode.displayName = "HttpRequestNode";
