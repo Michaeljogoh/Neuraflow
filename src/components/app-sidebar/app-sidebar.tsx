@@ -60,7 +60,7 @@ export const AppSidebar = () => {
       <SidebarHeader>
         <SidebarMenuItem>
           <SidebarMenuButton asChild className="gap-x-4 h-10 px-4">
-            <Link href="/workflow" prefetch>
+            <Link href="/workflows" prefetch>
               <Image
                 src="/logos/logo.svg"
                 alt="nueraflow"
