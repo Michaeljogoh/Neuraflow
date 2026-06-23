@@ -4,7 +4,6 @@ import {
   useQueryClient,
   useSuspenseQuery,
 } from "@tanstack/react-query";
-import { useRouter } from "next/router";
 import { toast } from "sonner";
 import { useWorkflowParams } from "./use-workflow-params";
 

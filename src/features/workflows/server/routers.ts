@@ -106,6 +106,7 @@ export const workflowsRouter = createTRPCRouter({
       return prisma.workflow.update({
         where: {
           id: input.id,
+          userId: ctx.auth.user.id,
         },
         data: {
           name: input.name,
