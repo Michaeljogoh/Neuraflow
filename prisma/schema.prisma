@@ -16,6 +16,7 @@ model User {
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @default(now()) @updatedAt
   workflows     Workflow[]
+  credentials   Credential[]
   accounts      Account[]
   sessions      Session[]
 
@@ -137,4 +138,22 @@ model Execution {
   inngestEventId String @unique
 
   output Json?
+}
+
+enum CredentialType {
+  OPENAI
+  ANTHROPIC
+  GEMINI
+}
+
+model Credential {
+  id String @id @default(cuid())
+  name String
+  value String
+  type CredentialType
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
