@@ -52,18 +52,51 @@ export function RegisterForm() {
 
   const router = useRouter();
 
+  const signInGithub = async () => {
+    await authClient.signIn.social(
+      {
+        provider: "github",
+        callbackURL: "/workflows",
+      },
+      {
+        onSuccess: () => {
+          router.push("/workflows");
+        },
+        onError: () => {
+          toast.error("Something went wrong");
+        },
+      },
+    );
+  };
+
+  const signInGoogle = async () => {
+    await authClient.signIn.social(
+      {
+        provider: "google",
+        callbackURL: "/workflows",
+      },
+      {
+        onSuccess: () => {
+          router.push("/workflows");
+        },
+        onError: () => {
+          toast.error("Something went wrong");
+        },
+      },
+    );
+  };
+
   const onSubmit = async (values: RegisterFormValues) => {
-    console.log(values);
     await authClient.signUp.email(
       {
         name: values.email,
         email: values.email,
         password: values.password,
-        callbackURL: "/",
+        callbackURL: "/workflows",
       },
       {
         onSuccess: () => {
-          router.push("/");
+          router.push("/workflows");
         },
         onError(ctx) {
           toast.error(ctx.error.message);
@@ -87,6 +120,7 @@ export function RegisterForm() {
               <div className="grid gap-6">
                 <div className="flex flex-col gap-4">
                   <Button
+                    onClick={signInGithub}
                     variant="outline"
                     className="w-full"
                     type="button"
@@ -97,6 +131,7 @@ export function RegisterForm() {
                   </Button>
 
                   <Button
+                    onClick={signInGoogle}
                     variant="outline"
                     className="w-full"
                     type="button"

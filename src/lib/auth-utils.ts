@@ -13,3 +13,13 @@ export const requireAuth = async () => {
 
   return session;
 };
+
+export const requireUnauth = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (session) {
+    redirect("/workflows");
+  }
+};
