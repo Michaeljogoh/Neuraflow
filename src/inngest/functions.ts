@@ -2,8 +2,11 @@ import { getExecutor } from "@/features/executions/lib/executor-registry";
 import { ExecutionStatus, NodeType } from "@/generated/prisma/enums";
 import prisma from "@/lib/db";
 import { NonRetriableError } from "inngest";
+import { anthropicChannel } from "./channels/anthropic";
+import { geminiChannel } from "./channels/gemini";
 import { httpRequestChannel } from "./channels/http-request";
 import { manualTriggerChannel } from "./channels/manual-trigger";
+import { openAiChannel } from "./channels/openai";
 import { inngest } from "./client";
 import { topologicalSort } from "./utils";
 
@@ -24,7 +27,13 @@ export const executeWorkflow = inngest.createFunction(
   },
   {
     event: "workflows/execute.workflow",
-    channels: [httpRequestChannel(), manualTriggerChannel()],
+    channels: [
+      httpRequestChannel(),
+      manualTriggerChannel(),
+      openAiChannel(),
+      geminiChannel(),
+      anthropicChannel(),
+    ],
   },
   async ({ event, step, publish }) => {
     const inngestEventId = event.id;
