@@ -1,5 +1,7 @@
 import { NodeType } from "@/generated/prisma/enums";
+import { googleFormTriggerExecutor } from "@/features/triggers/component/google-form-trigger/executor";
 import { manualTriggerExecutor } from "@/features/triggers/component/manual-trigger/executor";
+import { stripeTriggerExecutor } from "@/features/triggers/component/stripe-trigger/executor";
 import { anthropicExecutor } from "../components/anthropic/executor";
 import { geminiExecutor } from "../components/gemini/executor";
 import { httpRequestExecutor } from "../components/http-request/executor";
@@ -13,6 +15,8 @@ export const executorRegistry: Record<NodeType, NodeExecutor> = {
   [NodeType.OPENAI]: openAiExecutor,
   [NodeType.ANTHROPIC]: anthropicExecutor,
   [NodeType.GEMINI]: geminiExecutor,
+  [NodeType.GOOGLE_FORM_TRIGGER]: googleFormTriggerExecutor,
+  [NodeType.STRIPE_TRIGGER]: stripeTriggerExecutor,
 };
 
 export const getExecutor = (type: NodeType): NodeExecutor => {

@@ -87,6 +87,8 @@ enum NodeType {
   OPENAI
   ANTHROPIC
   GEMINI
+  GOOGLE_FORM_TRIGGER
+  STRIPE_TRIGGER
 }
 
 model Node {
