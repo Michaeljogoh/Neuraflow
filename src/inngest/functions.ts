@@ -3,11 +3,13 @@ import { ExecutionStatus, NodeType } from "@/generated/prisma/enums";
 import prisma from "@/lib/db";
 import { NonRetriableError } from "inngest";
 import { anthropicChannel } from "./channels/anthropic";
+import { discordChannel } from "./channels/discord";
 import { geminiChannel } from "./channels/gemini";
 import { googleFormTriggerChannel } from "./channels/google-form-trigger";
 import { httpRequestChannel } from "./channels/http-request";
 import { manualTriggerChannel } from "./channels/manual-trigger";
 import { openAiChannel } from "./channels/openai";
+import { slackChannel } from "./channels/slack";
 import { stripeTriggerChannel } from "./channels/stripe-trigger";
 import { inngest } from "./client";
 import { topologicalSort } from "./utils";
@@ -37,6 +39,8 @@ export const executeWorkflow = inngest.createFunction(
       anthropicChannel(),
       googleFormTriggerChannel(),
       stripeTriggerChannel(),
+      discordChannel(),
+      slackChannel(),
     ],
   },
   async ({ event, step, publish }) => {

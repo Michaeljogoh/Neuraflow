@@ -89,6 +89,8 @@ enum NodeType {
   GEMINI
   GOOGLE_FORM_TRIGGER
   STRIPE_TRIGGER
+  DISCORD
+  SLACK
 }
 
 model Node {
