@@ -1,13 +1,13 @@
 import type { Realtime } from "@inngest/realtime";
 import { useInngestSubscription } from "@inngest/realtime/hooks";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import type { NodeStatus } from "@/components/react-flow/node-status-indicator";
 
 interface UseNodeStatusOptions {
   nodeId: string;
   channel: string;
   topic: string;
-  refreshToken: () => Promise<Realtime.Subscribe.Token>;
+  refreshToken: () => Promise<Realtime.Subscribe.Token | null>;
 }
 
 export function useNodeStatus({
@@ -17,10 +17,25 @@ export function useNodeStatus({
   refreshToken,
 }: UseNodeStatusOptions) {
   const [status, setStatus] = useState<NodeStatus>("initial");
+  const [realtimeEnabled, setRealtimeEnabled] = useState(true);
+
+  const safeRefreshToken = useCallback(async () => {
+    try {
+      const token = await refreshToken();
+      if (!token) {
+        setRealtimeEnabled(false);
+        return null;
+      }
+      return token;
+    } catch {
+      setRealtimeEnabled(false);
+      return null;
+    }
+  }, [refreshToken]);
 
   const { data } = useInngestSubscription({
-    refreshToken,
-    enabled: true,
+    refreshToken: safeRefreshToken,
+    enabled: realtimeEnabled,
   });
 
   useEffect(() => {

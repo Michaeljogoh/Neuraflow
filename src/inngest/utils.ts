@@ -1,4 +1,6 @@
 import type { Connection, Node } from "@/generated/prisma/client";
+import { assertWithinMonthlyQuota } from "@/features/usage/lib/get-usage-overview";
+import prisma from "@/lib/db";
 import { createId } from "@paralleldrive/cuid2";
 import toposort from "toposort";
 import { inngest } from "./client";
@@ -47,6 +49,22 @@ export const sendWorkflowExecution = async (data: {
   workflowId: string;
   [key: string]: unknown;
 }) => {
+  const workflow = await prisma.workflow.findUnique({
+    where: { id: data.workflowId },
+    select: { userId: true },
+  });
+
+  if (!workflow) {
+    throw new Error("Workflow not found");
+  }
+
+  const quota = await assertWithinMonthlyQuota(workflow.userId);
+  if (!quota.allowed) {
+    throw new Error(
+      `Monthly run quota exceeded (${quota.overview.runsThisMonth}/${quota.overview.monthlyQuota})`,
+    );
+  }
+
   return inngest.send({
     name: "workflows/execute.workflow",
     data,

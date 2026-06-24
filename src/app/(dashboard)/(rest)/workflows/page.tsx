@@ -7,6 +7,7 @@ import { WorkflowsList, WorkflowContainer } from "@/features/workflows/component
 import { SearchParams } from "nuqs";
 import { WorkflowParamsLoader } from "@/features/workflows/server/params-loader";
 import { WorkflowLoading } from "@/features/workflows/components/workflows";
+import { PremiumStatusRefresher } from "@/features/subscription/premium-status-refresher";
 
 type Props = {
   searchParams: Promise<SearchParams>
@@ -22,6 +23,9 @@ export default async function Page({ searchParams }: Props) {
 
   return (
     <WorkflowContainer>
+      <Suspense>
+        <PremiumStatusRefresher />
+      </Suspense>
     <HydrateClient>
       <ErrorBoundary fallback={<p>Error!</p>}>
          <Suspense fallback={<WorkflowLoading />}>

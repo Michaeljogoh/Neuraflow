@@ -1,27 +1,29 @@
-"use client"
+"use client";
 
-import type { NodeProps } from "@xyflow/react"
-import { PlusIcon } from "lucide-react"
-import { memo, useState } from "react"
-import { PlaceholderNode } from "../react-flow/placeholder-node"
-import { WorkflowNode } from "../workflow-node/workflow-node"
-import { NodeSelector } from "../node-selector/node-selector"
-
+import type { NodeProps } from "@xyflow/react";
+import { PlusIcon } from "lucide-react";
+import { memo, useState } from "react";
+import { PlaceholderNode } from "@/components/react-flow/placeholder-node";
+import { WorkflowNode } from "@/components/workflow-node/workflow-node";
+import { NodeSelector } from "@/components/node-selector/node-selector";
 
 export const InitialNode = memo((props: NodeProps) => {
-      const [selectorOpen, setSelectorOpen] = useState(false);
-    return (
-        <NodeSelector open={selectorOpen} onOpenChange={setSelectorOpen} >
-        <WorkflowNode showToolBar={false}>
-            <PlaceholderNode {...props} onClick={() => setSelectorOpen(true)}   >
-                <div className="cursor-pointer flex items-center justify-center    ">
-                    <PlusIcon className="size-4" />
-                </div>
-            </PlaceholderNode>
-        </WorkflowNode>
-        </NodeSelector>
-    )
+  const [selectorOpen, setSelectorOpen] = useState(false);
+
+  return (
+    <NodeSelector open={selectorOpen} onOpenChange={setSelectorOpen}>
+      <WorkflowNode showToolbar={false}>
+        <PlaceholderNode
+          {...props}
+          onClick={() => setSelectorOpen(true)}
+        >
+          <div className="cursor-pointer flex items-center justify-center">
+            <PlusIcon className="size-4" />
+          </div>
+        </PlaceholderNode>
+      </WorkflowNode>
+    </NodeSelector>
+  );
 });
 
-InitialNode.displayName = "InitialNode"
-
+InitialNode.displayName = "InitialNode";

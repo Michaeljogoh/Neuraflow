@@ -3,19 +3,21 @@
 import { type NodeProps, Position, useReactFlow } from "@xyflow/react";
 import type { LucideIcon } from "lucide-react";
 import Image from "next/image";
-import React, { memo } from "react";
+import { memo, type ReactNode } from "react";
 import { BaseNode, BaseNodeContent } from "@/components/react-flow/base-node";
 import { BaseHandle } from "@/components/react-flow/base-handle";
 import { WorkflowNode } from "@/components/workflow-node/workflow-node";
-import { Icon } from "lucide-react";
-import { NodeStatus, NodeStatusIndicator } from "@/components/react-flow/node-status-indicator";
+import {
+  type NodeStatus,
+  NodeStatusIndicator,
+} from "@/components/react-flow/node-status-indicator";
 
 interface BaseExecutionNodeProps extends NodeProps {
   icon: LucideIcon | string;
   name: string;
   description?: string;
-  children?: React.ReactNode;
-  status?: NodeStatus
+  children?: ReactNode;
+  status?: NodeStatus;
   onSettings?: () => void;
   onDoubleClick?: () => void;
 }
@@ -27,24 +29,24 @@ export const BaseExecutionNode = memo(
     name,
     description,
     children,
-    status,
+    status = "initial",
     onSettings,
     onDoubleClick,
   }: BaseExecutionNodeProps) => {
     const { setNodes, setEdges } = useReactFlow();
-    
+
     const handleDelete = () => {
       setNodes((currentNodes) => {
-        const updatedNodes = currentNodes.filter((node) => node.id !== id);
-        return updatedNodes;
+        return currentNodes.filter((node) => node.id !== id);
       });
+
       setEdges((currentEdges) => {
-        const updatedEdges = currentEdges.filter(
-          (edge) => edge.source !== id && edge.target !== id
+        return currentEdges.filter(
+          (edge) => edge.source !== id && edge.target !== id,
         );
-        return updatedEdges;
       });
     };
+
     return (
       <WorkflowNode
         name={name}
@@ -52,23 +54,31 @@ export const BaseExecutionNode = memo(
         onDelete={handleDelete}
         onSettings={onSettings}
       >
-        <NodeStatusIndicator status={status} variant="border" >
-        <BaseNode status={status} onDoubleClick={onDoubleClick}>
-          <BaseNodeContent>
-            {typeof Icon === "string" ? (
-              <Image src={Icon} alt={name} width={16} height={16} />
-            ) : (
-              <Icon />
-            )}
-            {children}
-            <BaseHandle id="target-1" type="target" position={Position.Left} />
-            <BaseHandle id="source-1" type="source" position={Position.Right} />
-          </BaseNodeContent>
-        </BaseNode>
+        <NodeStatusIndicator status={status} variant="border">
+          <BaseNode status={status} onDoubleClick={onDoubleClick}>
+            <BaseNodeContent>
+              {typeof Icon === "string" ? (
+                <Image src={Icon} alt={name} width={16} height={16} />
+              ) : (
+                <Icon className="size-4 text-muted-foreground" />
+              )}
+              {children}
+              <BaseHandle
+                id="target-1"
+                type="target"
+                position={Position.Left}
+              />
+              <BaseHandle
+                id="source-1"
+                type="source"
+                position={Position.Right}
+              />
+            </BaseNodeContent>
+          </BaseNode>
         </NodeStatusIndicator>
       </WorkflowNode>
     );
-  }
+  },
 );
 
 BaseExecutionNode.displayName = "BaseExecutionNode";

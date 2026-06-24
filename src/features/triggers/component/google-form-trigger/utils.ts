@@ -1,4 +1,7 @@
-export const generateGoogleFormScript = (webhookUrl: string) => `function onFormSubmit(e) {
+export const generateGoogleFormScript = (
+  webhookUrl: string,
+  webhookSecret?: string,
+) => `function onFormSubmit(e) {
   var formResponse = e.response;
   var itemResponses = formResponse.getItemResponses();
 
@@ -23,7 +26,14 @@ export const generateGoogleFormScript = (webhookUrl: string) => `function onForm
   var options = {
     'method': 'post',
     'contentType': 'application/json',
-    'payload': JSON.stringify(payload)
+    'payload': JSON.stringify(payload)${
+      webhookSecret
+        ? `,
+    'headers': {
+      'X-Neuraflow-Secret': '${webhookSecret}'
+    }`
+        : ""
+    }
   };
 
   var WEBHOOK_URL = '${webhookUrl}';

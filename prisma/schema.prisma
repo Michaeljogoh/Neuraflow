@@ -19,6 +19,9 @@ model User {
   credentials   Credential[]
   accounts      Account[]
   sessions      Session[]
+  settings      UserSettings?
+  notifications UserNotification[]
+  auditLogs     AuditLog[]
 
   @@map("user")
 }
@@ -70,6 +73,7 @@ model Verification {
 model Workflow {
   id String @id @default(cuid())
   name String
+  templateSlug String?
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   nodes Node[]
@@ -77,6 +81,8 @@ model Workflow {
   executions Execution[]
   userId  String
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, templateSlug])
 }
 
 
@@ -163,4 +169,82 @@ model Credential {
 
   userId String
   user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model UserSettings {
+  id String @id @default(cuid())
+  userId String @unique
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  requireCredentialReferences Boolean @default(true)
+  blockUnsignedWebhooks Boolean @default(true)
+  executionFailureAlerts Boolean @default(true)
+  dailyUsageDigest Boolean @default(false)
+  requireConfirmDestructive Boolean @default(true)
+  runPreflightChecks Boolean @default(true)
+
+  googleFormWebhookSecret String?
+  stripeWebhookSecret String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("user_settings")
+}
+
+enum NotificationType {
+  EXECUTION_FAILED
+  USAGE_DIGEST
+}
+
+model UserNotification {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  type NotificationType
+  title String
+  message String @db.Text
+  read Boolean @default(false)
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  @@map("user_notification")
+}
+
+enum AuditLogAction {
+  WORKFLOW_CREATED
+  WORKFLOW_UPDATED
+  WORKFLOW_DELETED
+  WORKFLOW_EXECUTED
+  WORKFLOW_TEMPLATE_USED
+  CREDENTIAL_CREATED
+  CREDENTIAL_UPDATED
+  CREDENTIAL_DELETED
+  SETTINGS_UPDATED
+  WEBHOOK_BLOCKED
+}
+
+enum AuditLogStatus {
+  SUCCESS
+  PREVENTED
+  FAILED
+}
+
+model AuditLog {
+  id String @id @default(cuid())
+  userId String
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  actorEmail String
+  action AuditLogAction
+  target String
+  status AuditLogStatus
+  metadata Json?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@map("audit_log")
 }

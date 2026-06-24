@@ -16,6 +16,7 @@ import {
   useRemoveCredential,
   useSuspenseCredentials,
 } from "../hooks/use-credentials";
+import { useSettings } from "@/features/settings/hooks/use-settings";
 import { useRouter } from "next/navigation";
 import { useCredentialsParams } from "../hooks/use-credentials-params";
 import { useEntitySearch } from "@/features/workflows/hooks/use-entity-search";
@@ -48,7 +49,6 @@ export const CredentialsList = () => {
       getKey={(credential) => credential.id}
       renderItems={(credential) => <CredentialItem data={credential} />}
       emptyview={<CredentialsEmpty />}
-      className=""
     />
   );
 };
@@ -126,6 +126,7 @@ const credentialLogos: Record<CredentialType, string> = {
 
 export const CredentialItem = ({ data }: { data: Credential }) => {
   const removeCredential = useRemoveCredential();
+  const { data: settingsData } = useSettings();
 
   const handleRemove = () => {
     removeCredential.mutate({ id: data.id });
@@ -151,6 +152,9 @@ export const CredentialItem = ({ data }: { data: Credential }) => {
       }
       onRemove={handleRemove}
       isRemoving={removeCredential.isPending}
+      confirmBeforeRemove={settingsData?.settings.requireConfirmDestructive}
+      confirmTitle={`Delete credential "${data.name}"?`}
+      confirmDescription="Workflows using this credential may fail until you assign a new one."
     />
   );
 };

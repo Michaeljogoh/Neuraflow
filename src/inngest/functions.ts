@@ -1,5 +1,7 @@
 import { getExecutor } from "@/features/executions/lib/executor-registry";
-import { ExecutionStatus, NodeType } from "@/generated/prisma/enums";
+import { createExecutionFailureNotification } from "@/features/settings/lib/create-execution-failure-notification";
+import { recordAuditLog } from "@/features/audit-logs/lib/record-audit-log";
+import { ExecutionStatus, NodeType, AuditLogAction, AuditLogStatus } from "@/generated/prisma/enums";
 import prisma from "@/lib/db";
 import { NonRetriableError } from "inngest";
 import { anthropicChannel } from "./channels/anthropic";
@@ -18,15 +20,45 @@ export const executeWorkflow = inngest.createFunction(
   {
     id: "execute-workflow",
     retries: process.env.NODE_ENV === "production" ? 3 : 0,
-    onFailure: async ({ event }) => {
-      return prisma.execution.update({
-        where: { inngestEventId: event.data.event.id },
+    onFailure: async ({ event, error }) => {
+      const inngestEventId = event.data.event.id;
+      const workflowId = event.data.event?.data?.workflowId as
+        | string
+        | undefined;
+
+      await prisma.execution.update({
+        where: { inngestEventId },
         data: {
           status: ExecutionStatus.FAILED,
-          error: event.data.error.message,
-          errorStack: event.data.error.stack,
+          error: error.message,
+          errorStack: error.stack,
         },
       });
+
+      if (workflowId) {
+        const workflow = await prisma.workflow.findUnique({
+          where: { id: workflowId },
+          select: { id: true, name: true, userId: true },
+        });
+
+        if (workflow) {
+          await createExecutionFailureNotification({
+            userId: workflow.userId,
+            workflowId: workflow.id,
+            workflowName: workflow.name,
+            errorMessage: error.message,
+          });
+
+          await recordAuditLog({
+            userId: workflow.userId,
+            actorEmail: "system",
+            action: AuditLogAction.WORKFLOW_EXECUTED,
+            target: workflow.name,
+            status: AuditLogStatus.FAILED,
+            metadata: { workflowId: workflow.id, error: error.message },
+          });
+        }
+      }
     },
   },
   {
