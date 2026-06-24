@@ -1,26 +1,37 @@
 import { useQuery } from "@tanstack/react-query";
-import { authClient } from "@/lib/auth-client";
 
-export const useSubscription = () =>{
-    return useQuery({
-        queryKey: ["subscription"],
-        queryFn: async () =>{
-            const { data } = await authClient.customer.state()
-            return data;
-        }
-    })
+type PremiumStatus = {
+  hasAccess: boolean;
+  activeSubscriptions: unknown[];
 };
 
+async function fetchPremiumStatus(): Promise<PremiumStatus> {
+  const response = await fetch("/api/polar/premium-status", {
+    credentials: "include",
+  });
 
-export const useHasActiveSubscription = () =>{
-    const {data: customerState, isLoading, ...rest} = useSubscription();
+  if (!response.ok) {
+    throw new Error("Failed to load subscription status");
+  }
 
-    const hasSubscription = customerState?.activeSubscriptions && customerState?.activeSubscriptions.length > 0;
-
-    return {
-        hasSubscription,
-        subscription: customerState?.activeSubscriptions?.[0],
-        isLoading,
-        ...rest
-    }
+  return response.json();
 }
+
+export const useSubscription = () => {
+  return useQuery({
+    queryKey: ["subscription"],
+    queryFn: fetchPremiumStatus,
+    retry: 1,
+  });
+};
+
+export const useHasActiveSubscription = () => {
+  const { data, isLoading, ...rest } = useSubscription();
+
+  return {
+    hasSubscription: data?.hasAccess ?? false,
+    subscription: data?.activeSubscriptions?.[0] ?? null,
+    isLoading,
+    ...rest,
+  };
+};

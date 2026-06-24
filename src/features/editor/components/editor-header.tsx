@@ -46,7 +46,7 @@ export const EditorSaveButton = ({ workflowId }: { workflowId: string }) => {
   return (
     <div className="ml-auto">
       <Button size="sm" onClick={handleSave} disabled={saveWorkflow.isPending}>
-        <SaveIcon size="size-4" />
+        <SaveIcon className="size-4" />
         Save
       </Button>
     </div>
@@ -80,14 +80,12 @@ export const EditorNameInput = ({ workflowId }: { workflowId: string }) => {
       return;
     }
 
-    setIsEditing(false)
-
     try {
       await updateWorkflow.mutateAsync({
-        id: workflow.id,
+        id: workflowId,
         name,
       });
-    } catch (error) {
+    } catch {
       setName(workflow.name);
     } finally {
       setIsEditing(false);

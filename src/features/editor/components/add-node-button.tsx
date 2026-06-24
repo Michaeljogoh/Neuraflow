@@ -7,9 +7,11 @@ import { NodeSelector } from "@/components/node-selector/node-selector";
 
 export const AddNodeButton = memo(() => {
   const [selectorOpen, setSelectorOpen] = useState(false);
+
   return (
     <NodeSelector open={selectorOpen} onOpenChange={setSelectorOpen}>
       <Button
+        onClick={() => setSelectorOpen(true)}
         size="icon"
         variant="outline"
         className="bg-background"

@@ -1,12 +1,12 @@
 "use client";
 
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 
 interface Props  {
     open: boolean;
@@ -16,21 +16,21 @@ interface Props  {
 
 export const ManualTriggerDialog = ({ open, onOpenChange }: Props) => {
     return (
-        <Dialog open={open} onOpenChange={onOpenChange}>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Manual Trigger</DialogTitle>
-                    <DialogDescription>
+        <Sheet open={open} onOpenChange={onOpenChange}>
+            <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
+                <SheetHeader>
+                    <SheetTitle>Manual Trigger</SheetTitle>
+                    <SheetDescription>
                         Configure settings for the manual trigger mode
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="py-4">
+                    </SheetDescription>
+                </SheetHeader>
+                <div className="px-4 pb-4">
                     <p className="text-sm text-muted-foreground">
                        Used to manually execute a workflow, no configuration available.
                     </p>
                 </div>
-            </DialogContent>
-        </Dialog>
+            </SheetContent>
+        </Sheet>
     )
 }
 

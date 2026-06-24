@@ -1,20 +1,12 @@
 "use client";
 
-import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
-import z, { email } from "zod";
-import { Button } from "@/components/ui/button";
-import { toast } from "sonner";
+import z from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
-import {
-  Card,
-  CardTitle,
-  CardContent,
-  CardDescription,
-  CardHeader,
-} from "@/components/ui/card";
+import { ArrowRight } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -23,9 +15,11 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { authClient } from "@/lib/auth-client";
 import { Input } from "@/components/ui/input";
-
+import { AuthSocialButtons } from "@/features/auth/components/auth-social-buttons";
+import { PasswordInput } from "@/features/auth/components/password-input";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 const registerSchema = z
   .object({
@@ -34,7 +28,7 @@ const registerSchema = z
     confirmPassword: z.string(),
   })
   .refine((data) => data.password === data.confirmPassword, {
-    message: "password don't match",
+    message: "Passwords don't match",
     path: ["confirmPassword"],
   });
 
@@ -98,117 +92,116 @@ export function RegisterForm() {
         onSuccess: () => {
           router.push("/workflows");
         },
-        onError(ctx) {
+        onError: (ctx) => {
           toast.error(ctx.error.message);
         },
-      }
+      },
     );
   };
 
   const isPending = form.formState.isSubmitting;
 
   return (
-    <div className=" flex flex-col gap-6">
-      <Card>
-        <CardHeader className="text-center">
-          <CardTitle>Get Started</CardTitle>
-          <CardDescription>Create your account to get started</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)}>
-              <div className="grid gap-6">
-                <div className="flex flex-col gap-4">
-                  <Button
-                    onClick={signInGithub}
-                    variant="outline"
-                    className="w-full"
-                    type="button"
-                    disabled={isPending}
-                  >
-                    <Image src='/logos/github.svg' width={20} height={20} alt="Github Logo"/>
-                    Continue With Github
-                  </Button>
+    <div className="flex flex-col gap-8 lg:gap-5">
+      <div className="space-y-2 text-center lg:text-left">
+        <h2 className="text-2xl font-semibold tracking-tight">Create account</h2>
+        <p className="text-sm text-muted-foreground">
+          Start free — design your first workflow in under ten minutes.
+        </p>
+      </div>
 
-                  <Button
-                    onClick={signInGoogle}
-                    variant="outline"
-                    className="w-full"
-                    type="button"
-                    disabled={isPending}
-                  >
-                    <Image src='/logos/google.svg' width={20} height={20} alt="Google Logo"/>
-                    Continue With Google
-                  </Button>
-                </div>
-                <div className="grid gap-6">
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="email"
-                            placeholder="m@example.com"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Password</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="password"
-                            placeholder="*****"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="confirmPassword"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Confirm Password</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="password"
-                            placeholder="*****"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
+      <AuthSocialButtons
+        onGithub={signInGithub}
+        onGoogle={signInGoogle}
+        disabled={isPending}
+      />
 
-                  <Button type="submit" className="w-full" disabled={isPending}>
-                    Register
-                  </Button>
-                </div>
-                <div className="text-center text-sm">
-                  Already have an account?{" "}
-                  <Link href="/login" className="underline underline-offset-4">
-                    Sign In
-                  </Link>
-                </div>
-              </div>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+      <div className="relative">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-border" />
+        </div>
+        <div className="relative flex justify-center text-xs uppercase">
+          <span className="bg-background px-3 font-medium tracking-wider text-muted-foreground">
+            or continue with email
+          </span>
+        </div>
+      </div>
+
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-5 lg:space-y-4">
+          <FormField
+            control={form.control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-medium">Email</FormLabel>
+                <FormControl>
+                  <Input
+                    type="email"
+                    placeholder="you@company.com"
+                    className="h-11 rounded-xl"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="password"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-medium">Password</FormLabel>
+                <FormControl>
+                  <PasswordInput
+                    placeholder="••••••••"
+                    className="h-11 rounded-xl"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="confirmPassword"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="font-medium">Confirm password</FormLabel>
+                <FormControl>
+                  <PasswordInput
+                    placeholder="••••••••"
+                    className="h-11 rounded-xl"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <Button
+            type="submit"
+            className="h-11 w-full rounded-full font-semibold"
+            disabled={isPending}
+          >
+            Create account
+            <ArrowRight className="size-4" />
+          </Button>
+        </form>
+      </Form>
+
+      <p className="text-center text-sm text-muted-foreground">
+        Already have an account?{" "}
+        <Link
+          href="/login"
+          className="font-semibold text-foreground underline-offset-4 hover:text-primary hover:underline"
+        >
+          Sign in
+        </Link>
+      </p>
     </div>
   );
 }

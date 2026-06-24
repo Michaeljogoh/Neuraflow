@@ -116,13 +116,13 @@ For a **line-by-line list of every npm package and version**, see [`package.json
 
 ### Prerequisites
 
-- **Node.js** (LTS recommended) and npm
+- **Node.js** (LTS recommended) and **pnpm**
 - **PostgreSQL** database
 
 ### Install
 
 ```bash
-npm install
+pnpm install
 ```
 
 ### Environment variables
@@ -133,7 +133,9 @@ Create a `.env` file in the project root (values depend on your Polar app, datab
 | -------------------- | -------------------------------------------------------------------- |
 | `DATABASE_URL`       | PostgreSQL connection string (Prisma + `pg`)                         |
 | `POLAR_ACCESS_TOKEN` | Polar API (`src/lib/polar.ts`; sandbox server is configured in code) |
-| `POLAR_SUCCESS_URL`  | Redirect after checkout (`src/lib/auth.ts`)                          |
+| `POLAR_PRO_PRODUCT_ID` | Pro product id from Polar sandbox (`src/lib/auth.ts`)                |
+| `POLAR_SUCCESS_URL`    | Redirect after checkout (`src/lib/auth.ts`)                          |
+| `INNGEST_DEV`          | Set to `1` for local Inngest dev (realtime tokens use port 8288)   |
 
 **Better Auth**, **Inngest**, **Google Generative AI** (for the AI SDK), and **Sentry** typically require additional variables following each product’s setup guides; configure those before using those features in production.
 
@@ -149,21 +151,37 @@ npx prisma migrate dev
 
 ### Run locally
 
+Neuraflow runs on port **3009**. For the workflow editor, subscriptions, and **live node status during execution**, run **both** Next.js and Inngest dev:
+
 ```bash
-npm run dev
+# Terminal 1
+pnpm dev
+
+# Terminal 2
+pnpm inngest:dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) (you will be redirected to `/workflows`).
+Or together:
+
+```bash
+pnpm dev:all
+```
+
+Inngest dev UI: [http://localhost:8288](http://localhost:8288)
+
+Open [http://localhost:3009](http://localhost:3009) (you will be redirected to `/workflows`).
 
 ### Scripts
 
-| Command          | Description                |
-| ---------------- | -------------------------- |
-| `npm run dev`    | Next.js development server |
-| `npm run build`  | Production build           |
-| `npm run start`  | Start production server    |
-| `npm run lint`   | Biome check                |
-| `npm run format` | Biome format (write)       |
+| Command              | Description                                              |
+| -------------------- | -------------------------------------------------------- |
+| `pnpm dev`           | Next.js development server (port 3009)                   |
+| `pnpm inngest:dev`   | Inngest dev server (realtime node status, job execution) |
+| `pnpm dev:all`       | Next.js + Inngest + optional ngrok via `mprocs`          |
+| `pnpm run build`     | Production build                                         |
+| `pnpm run start`     | Start production server                                  |
+| `pnpm run lint`      | Biome check                                              |
+| `pnpm run format`    | Biome format (write)                                     |
 
 ## Roadmap / gaps (honest)
 

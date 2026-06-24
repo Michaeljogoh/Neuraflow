@@ -1,18 +1,9 @@
 import { withSentryConfig } from "@sentry/nextjs";
 import type { NextConfig } from "next";
+import { isSentryEnabled } from "./sentry.env";
 
 const nextConfig: NextConfig = {
   devIndicators: false,
-  /* config options here */
-  async redirects() {
-    return [
-      {
-        source: "/",
-        destination: "/workflows",
-        permanent: false,
-      },
-    ];
-  },
 };
 
 export default withSentryConfig(nextConfig, {
@@ -20,7 +11,7 @@ export default withSentryConfig(nextConfig, {
   project: "neuraflow",
   silent: !process.env.CI,
   widenClientFileUpload: true,
-  tunnelRoute: "/monitoring",
+  tunnelRoute: isSentryEnabled ? "/monitoring" : undefined,
   webpack: {
     treeshake: {
       removeDebugLogging: true,

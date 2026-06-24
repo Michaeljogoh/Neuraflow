@@ -16,7 +16,10 @@ import {
   MiniMap,
   Panel,
 } from "@xyflow/react";
-import { LoadingView } from "@/components/entity-components/entity-components";
+import {
+  LoadingError,
+  LoadingView,
+} from "@/components/entity-components/entity-components";
 import { useSuspenseWorkflow } from "@/features/workflows/hooks/use-workflow";
 import "@xyflow/react/dist/style.css";
 import { nodeComponents } from "@/config/node-components";
@@ -31,7 +34,7 @@ export const EditorLoading = () => {
 };
 
 export const EditorError = () => {
-  return <LoadingView message="Error loading editor" />;
+  return <LoadingError message="Error loading editor" />;
 };
 
 export const Editor = ({ workflowId }: { workflowId: string }) => {
@@ -77,7 +80,7 @@ export const Editor = ({ workflowId }: { workflowId: string }) => {
         snapToGrid
         panOnScroll
         panOnDrag={false}
-        selectNodesOnDrag
+        selectionOnDrag
       >
         <Background />
         <Controls />

@@ -1,4 +1,9 @@
 import { sendWorkflowExecution } from "@/inngest/utils";
+import prisma from "@/lib/db";
+import { recordAuditLog } from "@/features/audit-logs/lib/record-audit-log";
+import { getOrCreateUserSettings } from "@/features/settings/lib/get-or-create-settings";
+import { verifyStripeWebhookSignature } from "@/features/settings/lib/webhook-verification";
+import { AuditLogAction, AuditLogStatus } from "@/generated/prisma/enums";
 import { type NextRequest, NextResponse } from "next/server";
 
 export async function POST(request: NextRequest) {
@@ -16,7 +21,56 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const body = await request.json();
+    const workflow = await prisma.workflow.findUnique({
+      where: { id: workflowId },
+      select: { userId: true, name: true },
+    });
+
+    if (!workflow) {
+      return NextResponse.json(
+        { success: false, error: "Workflow not found" },
+        { status: 404 },
+      );
+    }
+
+    const settings = await getOrCreateUserSettings(workflow.userId);
+    const rawBody = await request.text();
+
+    if (settings.blockUnsignedWebhooks) {
+      const signature = request.headers.get("stripe-signature");
+      if (
+        !verifyStripeWebhookSignature(
+          rawBody,
+          signature,
+          settings.stripeWebhookSecret,
+        )
+      ) {
+        await recordAuditLog({
+          userId: workflow.userId,
+          actorEmail: "system",
+          action: AuditLogAction.WEBHOOK_BLOCKED,
+          target: workflow.name,
+          status: AuditLogStatus.PREVENTED,
+          metadata: { workflowId, source: "stripe" },
+        });
+
+        return NextResponse.json(
+          {
+            success: false,
+            error: "Unauthorized webhook: invalid Stripe signature",
+          },
+          { status: 401 },
+        );
+      }
+    }
+
+    const body = JSON.parse(rawBody) as {
+      id?: string;
+      type?: string;
+      created?: number;
+      livemode?: boolean;
+      data?: { object?: unknown };
+    };
 
     const stripeData = {
       eventId: body.id,

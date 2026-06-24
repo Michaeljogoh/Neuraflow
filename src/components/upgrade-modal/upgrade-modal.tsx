@@ -1,17 +1,15 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
 import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogCancel,
-  AlertDialogTitle,
-} from "../ui/alert-dialog";
-
-import { authClient } from "@/lib/auth-client";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
+import { startProCheckout } from "@/features/subscription/polar-actions";
 
 interface UpgradeModalProps {
   open: boolean;
@@ -20,20 +18,22 @@ interface UpgradeModalProps {
 
 export const UpgradeModal = ({ open, onOpenChange }: UpgradeModalProps) => {
   return (
-    <AlertDialog open={open} onOpenChange={onOpenChange}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-          <AlertDialogTitle>Upgrade to Pro</AlertDialogTitle>
-          <AlertDialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:max-w-md">
+        <SheetHeader>
+          <SheetTitle>Upgrade to Pro</SheetTitle>
+          <SheetDescription>
             You need an active subscription to perform this action. Upgrade to
-            pro to unlock all features
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter>
-            <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => authClient.checkout({ slug: "pro"})}>Upgrade Now</AlertDialogAction>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+            pro to unlock all features.
+          </SheetDescription>
+        </SheetHeader>
+        <SheetFooter className="flex-row justify-end gap-2">
+          <Button variant="outline" onClick={() => onOpenChange(false)}>
+            Cancel
+          </Button>
+          <Button onClick={() => startProCheckout()}>Upgrade Now</Button>
+        </SheetFooter>
+      </SheetContent>
+    </Sheet>
   );
 };

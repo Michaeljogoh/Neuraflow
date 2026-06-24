@@ -2,17 +2,18 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CopyIcon } from "lucide-react";
 import { useParams } from "next/navigation";
 import { toast } from "sonner";
+import { useWebhookSecrets } from "@/features/settings/hooks/use-settings";
 import { generateGoogleFormScript } from "./utils";
 
 interface Props {
@@ -23,6 +24,7 @@ interface Props {
 export const GoogleFormTriggerDialog = ({ open, onOpenChange }: Props) => {
   const params = useParams();
   const workflowId = params.workflowId as string;
+  const { data: webhookSecrets } = useWebhookSecrets();
 
   const baseUrl =
     process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3009";
@@ -38,16 +40,16 @@ export const GoogleFormTriggerDialog = ({ open, onOpenChange }: Props) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Google Form Trigger Configuration</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle>Google Form Trigger Configuration</SheetTitle>
+          <SheetDescription>
             Use this webhook URL in your Google Form&apos;s Apps Script to
             trigger this workflow when a form is submitted.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4">
+          </SheetDescription>
+        </SheetHeader>
+        <div className="space-y-4 px-4 pb-4">
           <div className="space-y-2">
             <Label htmlFor="webhook-url">Webhook URL</Label>
             <div className="flex gap-2">
@@ -85,7 +87,12 @@ export const GoogleFormTriggerDialog = ({ open, onOpenChange }: Props) => {
               type="button"
               variant="outline"
               onClick={async () => {
-                const script = generateGoogleFormScript(webhookUrl);
+                const script = generateGoogleFormScript(
+                  webhookUrl,
+                  webhookSecrets?.blockUnsignedWebhooks
+                    ? webhookSecrets.googleFormWebhookSecret ?? undefined
+                    : undefined,
+                );
                 try {
                   await navigator.clipboard.writeText(script);
                   toast.success("Script copied to clipboard");
@@ -98,7 +105,10 @@ export const GoogleFormTriggerDialog = ({ open, onOpenChange }: Props) => {
               Copy Google Apps Script
             </Button>
             <p className="text-xs text-muted-foreground">
-              This script includes your webhook URL and handles form submissions
+              This script includes your webhook URL
+              {webhookSecrets?.blockUnsignedWebhooks
+                ? " and your Neuraflow signing secret from Settings."
+                : " and handles form submissions."}
             </p>
           </div>
 
@@ -126,7 +136,7 @@ export const GoogleFormTriggerDialog = ({ open, onOpenChange }: Props) => {
             </ul>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };

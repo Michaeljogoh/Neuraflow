@@ -6,7 +6,11 @@ import 'dotenv/config';
 const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient;
   pgPool: Pool;
+  prismaSchemaFingerprint?: string;
 };
+
+/** Bump when Prisma schema changes so dev hot reload picks up a fresh client. */
+const PRISMA_SCHEMA_FINGERPRINT = "audit-logs-usage-v1";
 
 function createPool() {
   return new Pool({
@@ -32,8 +36,9 @@ function createPrismaClient() {
 let prisma = globalForPrisma.prisma ?? createPrismaClient();
 
 // Dev hot reload can keep a PrismaClient from before schema changes.
-if (!("credential" in prisma)) {
+if (globalForPrisma.prismaSchemaFingerprint !== PRISMA_SCHEMA_FINGERPRINT) {
   prisma = createPrismaClient();
+  globalForPrisma.prismaSchemaFingerprint = PRISMA_SCHEMA_FINGERPRINT;
 }
 
 if (process.env.NODE_ENV !== "production") {

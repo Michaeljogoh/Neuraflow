@@ -1,5 +1,6 @@
 import { auth } from "@/lib/auth";
-import { polarClient } from "@/lib/polar";
+import { ensurePolarCustomer } from "@/lib/ensure-polar-customer";
+import { getPremiumAccess } from "@/lib/polar-premium";
 import { initTRPC, TRPCError } from "@trpc/server";
 import { headers } from "next/headers";
 import { cache } from "react";
@@ -43,16 +44,21 @@ export const protectedProcedure = baseProcedure.use(async ({ ctx, next }) => {
   return next({ ctx: { ...ctx, auth: session } });
 });
 
-export const premiumProcedure  = protectedProcedure.use(async ({ ctx, next }) =>{
-    const customer = await polarClient.customers.getStateExternal({
-      externalId: ctx.auth.user.id
-    })
-    if(!customer.activeSubscriptions || customer.activeSubscriptions.length === 0 ) {
-      throw new TRPCError({ 
-        code:"FORBIDDEN",
-        message:"Active subscription require"
-      }) 
-    }
+export const premiumProcedure = protectedProcedure.use(async ({ ctx, next }) => {
+  await ensurePolarCustomer({
+    id: ctx.auth.user.id,
+    email: ctx.auth.user.email,
+    name: ctx.auth.user.name,
+  });
 
-    return next({ ctx: { ...ctx, customer }})
-})
+  const { customer, hasAccess } = await getPremiumAccess(ctx.auth.user.id);
+
+  if (!hasAccess) {
+    throw new TRPCError({
+      code: "FORBIDDEN",
+      message: "Active subscription required",
+    });
+  }
+
+  return next({ ctx: { ...ctx, customer } });
+});

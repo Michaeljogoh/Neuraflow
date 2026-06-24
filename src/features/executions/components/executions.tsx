@@ -31,7 +31,6 @@ export const ExecutionsList = () => {
       getKey={(execution) => execution.id}
       renderItems={(execution) => <ExecutionItem data={execution} />}
       emptyview={<ExecutionsEmpty />}
-      className=""
     />
   );
 };
@@ -41,7 +40,6 @@ export const ExecutionsHeader = () => {
     <EntityHeader
       title="Executions"
       description="View your workflow execution history"
-      newButtonLabel=""
     />
   );
 };
@@ -68,7 +66,6 @@ export const ExecutionsContainer = ({
   return (
     <EntityContainer
       header={<ExecutionsHeader />}
-      search={<div />}
       pagination={<ExecutionsPagination />}
     >
       {children}

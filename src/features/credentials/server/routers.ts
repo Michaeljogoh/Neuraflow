@@ -1,4 +1,5 @@
 import prisma from "@/lib/db";
+import { recordAuditLog } from "@/features/audit-logs/lib/record-audit-log";
 import {
   createTRPCRouter,
   premiumProcedure,
@@ -6,7 +7,7 @@ import {
 } from "@/trpc/init";
 import z from "zod";
 import { PAGINATION } from "@/config/constants";
-import { CredentialType } from "@/generated/prisma/enums";
+import { AuditLogAction, AuditLogStatus, CredentialType } from "@/generated/prisma/enums";
 import { encrypt } from "@/lib/encryption";
 
 export const credentialsRouter = createTRPCRouter({
@@ -18,10 +19,10 @@ export const credentialsRouter = createTRPCRouter({
         value: z.string().min(1, "Value is required"),
       }),
     )
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { name, value, type } = input;
 
-      return prisma.credential.create({
+      const credential = await prisma.credential.create({
         data: {
           name,
           userId: ctx.auth.user.id,
@@ -29,16 +30,38 @@ export const credentialsRouter = createTRPCRouter({
           value: encrypt(value),
         },
       });
+
+      await recordAuditLog({
+        userId: ctx.auth.user.id,
+        actorEmail: ctx.auth.user.email,
+        action: AuditLogAction.CREDENTIAL_CREATED,
+        target: credential.name,
+        status: AuditLogStatus.SUCCESS,
+        metadata: { credentialId: credential.id, type: credential.type },
+      });
+
+      return credential;
     }),
   remove: protectedProcedure
     .input(z.object({ id: z.string() }))
-    .mutation(({ ctx, input }) => {
-      return prisma.credential.delete({
+    .mutation(async ({ ctx, input }) => {
+      const credential = await prisma.credential.delete({
         where: {
           id: input.id,
           userId: ctx.auth.user.id,
         },
       });
+
+      await recordAuditLog({
+        userId: ctx.auth.user.id,
+        actorEmail: ctx.auth.user.email,
+        action: AuditLogAction.CREDENTIAL_DELETED,
+        target: credential.name,
+        status: AuditLogStatus.SUCCESS,
+        metadata: { credentialId: credential.id, type: credential.type },
+      });
+
+      return credential;
     }),
   update: protectedProcedure
     .input(
@@ -49,10 +72,10 @@ export const credentialsRouter = createTRPCRouter({
         value: z.string().min(1, "Value is required"),
       }),
     )
-    .mutation(({ ctx, input }) => {
+    .mutation(async ({ ctx, input }) => {
       const { id, name, type, value } = input;
 
-      return prisma.credential.update({
+      const credential = await prisma.credential.update({
         where: { id, userId: ctx.auth.user.id },
         data: {
           name,
@@ -60,6 +83,17 @@ export const credentialsRouter = createTRPCRouter({
           value: encrypt(value),
         },
       });
+
+      await recordAuditLog({
+        userId: ctx.auth.user.id,
+        actorEmail: ctx.auth.user.email,
+        action: AuditLogAction.CREDENTIAL_UPDATED,
+        target: credential.name,
+        status: AuditLogStatus.SUCCESS,
+        metadata: { credentialId: credential.id, type: credential.type },
+      });
+
+      return credential;
     }),
   getOne: protectedProcedure
     .input(z.object({ id: z.string() }))

@@ -2,12 +2,12 @@
 
 import { Button } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { CopyIcon } from "lucide-react";
@@ -37,16 +37,16 @@ export const StripeTriggerDialog = ({ open, onOpenChange }: Props) => {
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Stripe Trigger Configuration</DialogTitle>
-          <DialogDescription>
+    <Sheet open={open} onOpenChange={onOpenChange}>
+      <SheetContent side="right" className="w-full sm:max-w-lg overflow-y-auto">
+        <SheetHeader>
+          <SheetTitle>Stripe Trigger Configuration</SheetTitle>
+          <SheetDescription>
             Configure this webhook URL in your Stripe Dashboard to trigger this
             workflow on payment events.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4">
+          </SheetDescription>
+        </SheetHeader>
+        <div className="space-y-4 px-4 pb-4">
           <div className="space-y-2">
             <Label htmlFor="webhook-url">Webhook URL</Label>
             <div className="flex gap-2">
@@ -77,7 +77,7 @@ export const StripeTriggerDialog = ({ open, onOpenChange }: Props) => {
               <li>
                 Select events to listen for (e.g., payment_intent.succeeded)
               </li>
-              <li>Save and copy the signing secret</li>
+              <li>Save and copy the signing secret into Settings</li>
             </ol>
           </div>
 
@@ -105,7 +105,7 @@ export const StripeTriggerDialog = ({ open, onOpenChange }: Props) => {
             </ul>
           </div>
         </div>
-      </DialogContent>
-    </Dialog>
+      </SheetContent>
+    </Sheet>
   );
 };
